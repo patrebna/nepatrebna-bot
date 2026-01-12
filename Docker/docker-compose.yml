@@ -1,0 +1,21 @@
+version: '3'
+services:
+  radar:
+    build: 
+      context: ../
+      dockerfile: ./Docker/bot/Dockerfile
+    image: radar_bot
+    container_name: radar_bot
+    restart: always
+    ports:
+      - "443:443"
+    networks:
+      - radar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+networks:
+  radar-network:
+    driver: bridge
