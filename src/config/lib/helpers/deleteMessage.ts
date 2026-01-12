@@ -1,0 +1,29 @@
+import { bot } from "bot";
+import { isTelegramError } from "config/types";
+import { safeAnswerCallbackQuery } from "config/lib/helpers/safeAnswerCallbackQuery";
+
+export async function deleteMessage(
+  chatId: number,
+  messageId: number,
+  callbackQueryId: string,
+): Promise<void> {
+  try {
+    await bot.deleteMessage(chatId, messageId);
+  } catch (error) {
+    if (isTelegramError(error)) {
+      const { description } = error.response.body;
+      if (description.includes("Bad Request: message to delete not found")) {
+        await safeAnswerCallbackQuery(callbackQueryId, {
+          text: "⚠️ Это сообщение устарело или уже удалено.",
+          show_alert: true,
+        });
+        return;
+      }
+    }
+    await safeAnswerCallbackQuery(callbackQueryId, {
+      text: "❗ Произошла неизвестная ошибка, попробуйте позже.",
+      show_alert: true,
+    });
+    console.error(error);
+  }
+}

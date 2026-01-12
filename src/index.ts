@@ -1,10 +1,14 @@
-import "dotenv/config";
-import TelegramBot from "node-telegram-bot-api";
+import 'dotenv/config';
+import cbquery from 'bot/cbquery';
 
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "";
+void cbquery();
 
-export const bot = new TelegramBot(TOKEN, { polling: true });
-
-bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, "Welcome to the Radar Bot!");
-});
+// bot.onText(/\/start/, (msg) => {
+//   bot.sendMessage(msg.chat.id, "Приветсветнный текст", {
+//     reply_markup: {
+//       inline_keyboard: [
+//         [{ text: "Предложить новость", callback_data: "suggest_news" }],
+//       ],
+//     },
+//   });
+// });
