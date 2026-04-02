@@ -28,11 +28,12 @@ export default async (): Promise<void> => {
 
     switch (callbackData.action) {
       case 'approve': {
-        await bot.copyMessage(MAIN_CHANNEL_ID, MODERATION_CHANNEL_ID, callbackData?.param);
+        await bot.copyMessage(MAIN_CHANNEL_ID, MODERATION_CHANNEL_ID, callbackData?.param[0]);
         await safeAnswerCallbackQuery(callbackQueryId, {
           text: '✅ Опубликовано',
           show_alert: true,
         });
+        await sendMessage(callbackData?.param[1], '✅ Ваша новость одобрена и опубликована!');
         if (!messageId) return;
         await bot.deleteMessage(MODERATION_CHANNEL_ID, messageId);
         break;
@@ -44,6 +45,7 @@ export default async (): Promise<void> => {
         });
         if (!messageId) return;
         await bot.deleteMessage(MODERATION_CHANNEL_ID, messageId);
+        await sendMessage(callbackData?.param[1], '❌ Ваша новость отклонена.');
         break;
       }
       case 'suggest_news': {
@@ -68,14 +70,14 @@ export default async (): Promise<void> => {
                     text: '✅ Опубликовать',
                     callback_data: JSON.stringify({
                       action: 'approve',
-                      param: copied?.message_id,
+                      param: [copied?.message_id, userId],
                     }),
                   },
                   {
                     text: '❌ Отклонить',
                     callback_data: JSON.stringify({
                       action: 'reject',
-                      param: copied?.message_id,
+                      param: [copied?.message_id, userId],
                     }),
                   },
                 ],

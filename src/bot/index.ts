@@ -1,29 +1,33 @@
+import express from 'express';
 import TelegramBot from 'node-telegram-bot-api';
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? '';
-const PORT = Number(process.env.WEBHOOK_PORT) ?? 443;
-const HOST = process.env.HOST ?? '';
-const WEBHOOK_URL = `${HOST}:${PORT}/bot${TOKEN}`;
 
-const options = {
-  webHook: {
-    port: PORT,
-    key: './certs/bot/key.pem',
-    cert: './certs/bot/cert.pem',
-  },
-};
+const { BOT_TOKEN, PORT = 3000, WEBHOOK_URL, WEBHOOK_PATH = '/webhook' } = process.env;
 
-export const bot = new TelegramBot(TOKEN, options);
+if (!BOT_TOKEN) {
+  console.error('BOT_TOKEN is required');
+  process.exit(1);
+}
+if (!WEBHOOK_URL) {
+  console.error('WEBHOOK_URL is required (full https URL)');
+  process.exit(1);
+}
 
-void (async () => {
+export const bot = new TelegramBot(BOT_TOKEN);
+
+const app = express();
+app.use(express.json());
+
+app.post(WEBHOOK_PATH, (req: express.Request, res: express.Response) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+app.listen(PORT, async () => {
   try {
-    const { url } = await bot.getWebHookInfo();
-    if (url !== WEBHOOK_URL) {
-      await bot.setWebHook(WEBHOOK_URL, {
-        certificate: options.webHook.cert,
-      });
-      console.info('Webhook was successfully set');
-    }
-  } catch (error) {
-    console.error('The certificate could not be installed', error);
+    await bot.setWebHook(WEBHOOK_URL);
+    console.log(`Bot2 webhook set to ${WEBHOOK_URL}`);
+  } catch (err) {
+    console.error('Failed to set webhook', err);
   }
-})();
+  console.log(`Bot2 server listening on ${PORT}`);
+});

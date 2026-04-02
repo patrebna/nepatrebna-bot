@@ -1,5 +1,5 @@
 {
-  "name": "radar_bot",
+  "name": "nepatrebna-bot",
   "version": "0.0.1",
   "description": "",
   "main": "index.ts",
@@ -9,20 +9,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evgeniy-kolmak/radar_bot.git"
+    "url": "git+https://github.com/patrebna/nepatrebna-bot.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/evgeniy-kolmak/radar_bot/issues"
+    "url": "https://github.com/patrebna/nepatrebna-bot/issues"
   },
-  "homepage": "https://github.com/evgeniy-kolmak/radar_bot#readme",
+  "homepage": "https://github.com/patrebna/nepatrebna-bot#readme",
   "dependencies": {
     "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "node-telegram-bot-api": "^0.67.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^25.0.6",
     "@types/node-telegram-bot-api": "^0.64.13",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
