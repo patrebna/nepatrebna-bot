@@ -27,37 +27,16 @@ export default async (): Promise<void> => {
     }
 
     switch (callbackData.action) {
-      case 'approve': {
-        await bot.copyMessage(MAIN_CHANNEL_ID, MODERATION_CHANNEL_ID, callbackData?.param[0]);
-        await safeAnswerCallbackQuery(callbackQueryId, {
-          text: '✅ Опубликовано',
-          show_alert: true,
-        });
-        await sendMessage(callbackData?.param[1], '✅ Ваша новость одобрена и опубликована!');
-        if (!messageId) return;
-        await bot.deleteMessage(MODERATION_CHANNEL_ID, messageId);
-        break;
-      }
-      case 'reject': {
-        await safeAnswerCallbackQuery(callbackQueryId, {
-          text: '❌ Отклонено',
-          show_alert: true,
-        });
-        if (!messageId) return;
-        await bot.deleteMessage(MODERATION_CHANNEL_ID, messageId);
-        await sendMessage(callbackData?.param[1], '❌ Ваша новость отклонена.');
-        break;
-      }
-      case 'suggest_news': {
-        const message1 = '❓ О чём хотите рассказать?';
+      case 'create_ad': {
+        const message1 = '❓ Какое объявление вы хотели бы разместить?';
         const message2 = `${[
-          '✍️ <b>Опишите вашу новость</b>: расскажите, что произошло и все детали.',
-          '📎 Если есть <b>фото</b> или <b>видео</b>, обязательно прикрепите один медиафайл.',
+          '✍️ <b>Опишите товар</b>: что это, состояние, цена и другие детали.',
+          '📎 Прикрепите <b>один</b> медиафайл (фото или видео) — так объявление быстрее пройдет модерацию.',
         ].join('\n')}`;
         await editMessage(userId, messageId, message1, callbackQueryId);
         const prompt = await sendMessage(userId, message2, {
           force_reply: true,
-          input_field_placeholder: 'Введите вашу новость...',
+          input_field_placeholder: 'Введите описание товара...',
         });
         if (!prompt) return;
         bot.onReplyToMessage(userId, prompt?.message_id, async (message) => {
@@ -89,9 +68,52 @@ export default async (): Promise<void> => {
             },
           );
 
-          await sendMessage(userId, ' ✅ Спасибо! Новость отправлена на модерацию.');
+          await sendMessage(userId, ' ✅ Спасибо! Объявление отправлено на модерацию.');
         });
+        break;
+      }
+      case 'approve': {
+        const sourceMessageId = callbackData?.param[0];
+        const userId = callbackData?.param[1];
+        const publishedMessage = await bot.copyMessage(
+          MAIN_CHANNEL_ID,
+          MODERATION_CHANNEL_ID,
+          sourceMessageId,
+          {
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: '💬 Написать',
+                    url: `tg://user?id=${userId}`,
+                  },
+                ],
+              ],
+            },
+          },
+        );
+        await sendMessage(userId, '✅ Ваша новость одобрена и опубликована! 👇');
+        await bot.forwardMessage(userId, MAIN_CHANNEL_ID, publishedMessage.message_id);
 
+        await safeAnswerCallbackQuery(callbackQueryId, {
+          text: '✅ Опубликовано',
+          show_alert: true,
+        });
+        if (!messageId) return;
+        await bot.deleteMessage(MODERATION_CHANNEL_ID, messageId);
+        break;
+      }
+      case 'reject': {
+        const sourceMessageId = callbackData?.param[0];
+        const userId = callbackData?.param[1];
+        await safeAnswerCallbackQuery(callbackQueryId, {
+          text: '❌ Отклонено',
+          show_alert: true,
+        });
+        await sendMessage(userId, '❌ Ваша новость отклонена. 👇');
+        await bot.copyMessage(userId, MODERATION_CHANNEL_ID, sourceMessageId);
+        if (!messageId) return;
+        await bot.deleteMessage(MODERATION_CHANNEL_ID, messageId);
         break;
       }
     }
