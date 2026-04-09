@@ -5,6 +5,7 @@ import { safeAnswerCallbackQuery } from 'config/lib/helpers/safeAnswerCallbackQu
 import { sendMessage } from 'config/lib/helpers/sendMessage';
 import { type ICallbackData } from 'config/types';
 import { сommandHandlers } from 'constants/commandHandlers';
+import keyboards from './keyboards';
 
 export default async (): Promise<void> => {
   bot.on('callback_query', async (query): Promise<void> => {
@@ -32,6 +33,8 @@ export default async (): Promise<void> => {
         const message2 = `${[
           '✍️ <b>Опишите товар</b>: что это, состояние, цена и другие детали.',
           '📎 Прикрепите <b>один</b> медиафайл (фото или видео) — так объявление быстрее пройдет модерацию.',
+          '',
+          '❗ Добавьте содержимое в <b>поле ниже</b> и отправьте сообщение.',
         ].join('\n')}`;
         await editMessage(userId, messageId, message1, callbackQueryId);
         const prompt = await sendMessage(userId, message2, {
@@ -68,7 +71,11 @@ export default async (): Promise<void> => {
             },
           );
 
-          await sendMessage(userId, ' ✅ Спасибо! Объявление отправлено на модерацию.');
+          await sendMessage(
+            userId,
+            ' ✅ Спасибо! Объявление отправлено на модерацию.',
+            keyboards.Main(),
+          );
         });
         break;
       }
