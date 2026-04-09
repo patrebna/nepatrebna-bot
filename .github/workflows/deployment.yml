@@ -16,5 +16,5 @@ jobs:
             cd nepatrebna-bot
             git pull origin main
             cd ..
-            docker compose up -d --build --no-deps bot nepatrebna
+            docker compose up -d --build --no-deps nepatrebna
             docker image prune -f
