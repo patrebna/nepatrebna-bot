@@ -13,7 +13,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            cd nepatrebna
+            cd nepatrebna-bot
             git pull origin main
             cd ..
             docker compose up -d --build --no-deps bot nepatrebna
